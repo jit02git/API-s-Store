@@ -1,6 +1,16 @@
 const Student = require('../Model/StudentModel');
 
-exports.createStudent = async (req, res) => {
+const getStudent = async (req, res) => {
+  try {
+    const students = await Student.find();
+    res.status(200).json({ message: 'Students retrieved successfully', data: students });
+  } catch (err) {
+    console.error('GetStudent Error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+const createStudent = async (req, res) => {
   try {
     const {
       firstName,
@@ -45,4 +55,45 @@ exports.createStudent = async (req, res) => {
     console.error('CreateStudent Error:', err);
     res.status(500).json({ message: 'Server error' });
   }
+};
+
+const updateStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const updatedStudent = await Student.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student updated successfully', data: updatedStudent });
+  } catch (err) {
+    console.error('UpdateStudent Error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+const deleteStudent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedStudent = await Student.findByIdAndDelete(id);
+    if (!deletedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student deleted successfully', data: deletedStudent });
+  } catch (err) {
+    console.error('DeleteStudent Error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+module.exports = {
+  getStudent,
+  createStudent,
+  updateStudent,
+  deleteStudent
 };
